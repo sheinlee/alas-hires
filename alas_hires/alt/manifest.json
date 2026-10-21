@@ -1,0 +1,86 @@
+{
+  "assets/cn/handler/CLEAR_MODE_TITLE.png": {
+    "button": "handler.CLEAR_MODE_TITLE",
+    "md5": "104d65ea62ae9ebabfadf547af7a218f",
+    "files": [
+      "assets/cn/handler/CLEAR_MODE_TITLE.0.png"
+    ],
+    "sources": [
+      {
+        "from": "4K screenshot 031_120556.png",
+        "note": "original 0.692 at (959, 586), area (960, 586, 1036, 606)",
+        "date": "2026-10-20"
+      }
+    ]
+  },
+  "assets/cn/handler/AUTO_SEARCH_TITLE.png": {
+    "button": "handler.AUTO_SEARCH_TITLE",
+    "md5": "ac5843c6eeb1db1880dfb099dfcb3206",
+    "files": [
+      "assets/cn/handler/AUTO_SEARCH_TITLE.0.png"
+    ],
+    "sources": [
+      {
+        "from": "4K screenshot 035_120605.png",
+        "note": "original 0.883 at (846, 586), area (848, 586, 917, 606)",
+        "date": "2026-10-20"
+      }
+    ]
+  },
+  "assets/cn/os/ZONE_DANGEROUS.png": {
+    "button": "os.ZONE_DANGEROUS",
+    "md5": "6aba9702cd801d535061bd34e2a95845",
+    "files": [
+      "assets/cn/os/ZONE_DANGEROUS.0.png"
+    ],
+    "sources": [
+      {
+        "from": "4K screenshot 067_120801.png",
+        "note": "original 0.764 at (87, 311), area (87, 310, 171, 322)",
+        "date": "2026-10-20"
+      }
+    ]
+  },
+  "assets/cn/os/ZONE_STRONGHOLD.png": {
+    "button": "os.ZONE_STRONGHOLD",
+    "md5": "2f316f4550da12e3343862a4b5e37563",
+    "files": [
+      "assets/cn/os/ZONE_STRONGHOLD.0.png"
+    ],
+    "sources": [
+      {
+        "from": "4K screenshot 109_130014.png",
+        "note": "original 0.766 at (85, 301), area (85, 301, 171, 322)",
+        "date": "2026-10-20"
+      }
+    ]
+  },
+  "assets/cn/os/ZONE_OBSCURE.png": {
+    "button": "os.ZONE_OBSCURE",
+    "md5": "fec79aa0f34fb6282292a796b2013664",
+    "files": [
+      "assets/cn/os/ZONE_OBSCURE.0.png"
+    ],
+    "sources": [
+      {
+        "from": "4K screenshot 116_130039.png",
+        "note": "original 0.713 at (85, 302), area (85, 302, 172, 322)",
+        "date": "2026-10-20"
+      }
+    ]
+  },
+  "assets/cn/os/ZONE_SAFE.png": {
+    "button": "os.ZONE_SAFE",
+    "md5": "ec67148d644203a6fd80c3a43e675b44",
+    "files": [
+      "assets/cn/os/ZONE_SAFE.0.png"
+    ],
+    "sources": [
+      {
+        "from": "4K screenshot 131_130737.png",
+        "note": "original 0.790 at (85, 301), area (85, 301, 172, 322)",
+        "date": "2026-10-20"
+      }
+    ]
+  }
+}
