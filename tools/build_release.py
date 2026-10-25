@@ -1,4 +1,4 @@
-"""Build dist/alas-hires-v<version>.zip: alas_hires/, 用补丁跑Alas.bat, README.md, LICENSE.
+"""Build dist/alas-hires-v<version>.zip: alas_hires/, AlasHires.bat, README.md, README.en.md, LICENSE.
 
     python tools/build_release.py
 """
@@ -20,7 +20,7 @@ def main():
     out = os.path.join(ROOT, 'dist', f'alas-hires-v{version()}.zip')
     os.makedirs(os.path.dirname(out), exist_ok=True)
     with zipfile.ZipFile(out, 'w', zipfile.ZIP_DEFLATED) as z:
-        for name in ('用补丁跑Alas.bat', 'README.md', 'LICENSE'):
+        for name in ('AlasHires.bat', 'README.md', 'README.en.md', 'LICENSE'):
             z.write(os.path.join(ROOT, name), name)
         for base, dirs, files in os.walk(os.path.join(ROOT, 'alas_hires')):
             dirs[:] = [d for d in dirs if d not in ('runs', '__pycache__')]

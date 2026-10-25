@@ -34,7 +34,7 @@ import time
 import cv2
 import numpy as np
 
-__version__ = '0.1.0'
+__version__ = '0.1.1'
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ALT_DIR = os.path.join(HERE, 'alt')
@@ -289,6 +289,13 @@ class AltTemplates:
             self.cache[key] = self._load(key[0], kind)
         return self.cache[key]
 
+    def similarity(self, button, default):
+        """Threshold for this button's alternatives: the manifest entry's optional "similarity" when it is
+        lower than Alas's own (for text titles whose 4K rendering varies with the background), else Alas's."""
+        entry = self.manifest.get(asset_key(button.file)) if button.file else None
+        value = entry.get('similarity') if entry else None
+        return min(default, float(value)) if value else default
+
     def _load(self, key, kind):
         entry = self.manifest.get(key)
         if not entry:
@@ -322,10 +329,11 @@ class NearMissRecorder:
             os.makedirs(os.path.join(self.folder, 'frames'), exist_ok=True)
             with open(os.path.join(self.folder, 'near_miss.csv'), 'w', newline='', encoding='utf-8-sig') as f:
                 csv.writer(f).writerow(['time', 'button', 'asset', 'kind', 'score', 'threshold', 'x', 'y',
-                                        'crop', 'frame', 'scale'])
+                                        'crop', 'frame', 'scale', 'alt_score'])
             _log().info(f'ALAS-HIRES: near misses -> {self.folder}')
 
-    def record(self, button, image, kind, sim, threshold, top_left, shape):
+    def record(self, button, image, kind, sim, threshold, top_left, shape, alt_sim=None):
+        """sim: the original template's best score; alt_sim: the best 4K alternative's, if the button has any"""
         now = time.time()
         key = button.file or button.name
         with self.lock:
@@ -353,8 +361,10 @@ class NearMissRecorder:
                 with open(os.path.join(self.folder, 'near_miss.csv'), 'a', newline='', encoding='utf-8-sig') as f:
                     csv.writer(f).writerow([time.strftime('%H:%M:%S', time.localtime(now)), button.name,
                                             asset_key(button.file or ''), kind, f'{sim:.4f}', threshold, x, y,
-                                            crop_name, frame_name, f'{STATE.scale:.3f}'])
-                _log().info(f'ALAS-HIRES: near miss {button.name} {sim:.3f} < {threshold} ({kind})')
+                                            crop_name, frame_name, f'{STATE.scale:.3f}',
+                                            '' if alt_sim is None else f'{alt_sim:.4f}'])
+                alt = '' if alt_sim is None else f', 4K alternative {alt_sim:.3f}'
+                _log().info(f'ALAS-HIRES: near miss {button.name} {sim:.3f} < {threshold} ({kind}{alt})')
             except Exception as e:
                 _log().warning(f'ALAS-HIRES: failed to save near miss {button.name}: {e}')
 
@@ -371,9 +381,11 @@ def _rescue(button, image, offset, similarity, kind):
     region = rgb2luma(region_rgb) if kind == 'luma' else region_rgb
 
     alts = ALT.get(button, kind)
+    alt_sim = None
     if alts:
         sim, point, _ = _best(alts, region)
-        if sim > similarity:
+        alt_sim = sim
+        if sim > ALT.similarity(button, similarity):
             button._button_offset = area_offset(button._button, off[:2] + np.array(point))
             STATE.alt_hits = getattr(STATE, 'alt_hits', {})
             n = STATE.alt_hits.get(button.name, 0)
@@ -389,7 +401,7 @@ def _rescue(button, image, offset, similarity, kind):
     sim, point, shape = _best(templates, region)
     if NEAR_MIN <= sim < similarity and shape is not None:
         top_left = (off[0] + button.area[0] + point[0], off[1] + button.area[1] + point[1])
-        RECORDER.record(button, image, kind, sim, similarity, top_left, shape)
+        RECORDER.record(button, image, kind, sim, similarity, top_left, shape, alt_sim)
     return False
 
 

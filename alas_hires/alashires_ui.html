@@ -1,0 +1,411 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AlasHires</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%232563eb'/%3E%3Cpath d='M7 22 13 9h2l6 13h-3l-1.3-3h-5.4L10 22Zm5.3-5.6h3.4L14 12.3ZM22 9h3v13h-3z' fill='white'/%3E%3C/svg%3E">
+<style>
+  :root {
+    --bg: #f3f5f9;
+    --card: #ffffff;
+    --line: #e3e7ef;
+    --text: #1b2333;
+    --muted: #667085;
+    --accent: #2563eb;
+    --accent-hover: #1d4ed8;
+    --danger: #dc2626;
+    --danger-hover: #b91c1c;
+    --ok: #16a34a;
+    --warn: #d97706;
+    --idle: #98a2b3;
+    --log-bg: #111827;
+    --log-text: #d1d5db;
+    --log-muted: #6b7280;
+    --log-hires: #67e8f9;
+    --log-task: #a5b4fc;
+    --log-warn: #fbbf24;
+    --log-error: #f87171;
+    --log-hr: #9ca3af;
+    --shadow: 0 1px 2px rgba(16, 24, 40, .06), 0 1px 3px rgba(16, 24, 40, .08);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f1420;
+      --card: #171e2c;
+      --line: #263042;
+      --text: #e5e9f0;
+      --muted: #94a0b4;
+      --accent: #3b82f6;
+      --accent-hover: #60a5fa;
+      --danger: #ef4444;
+      --danger-hover: #f87171;
+      --idle: #5b6578;
+      --log-bg: #0a0e16;
+      --shadow: none;
+    }
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font: 14px/1.5 "Microsoft YaHei UI", "Segoe UI", system-ui, sans-serif;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 16px 18px;
+    overflow: hidden;
+  }
+  header { display: flex; align-items: center; gap: 12px; }
+  .logo {
+    width: 34px; height: 34px; border-radius: 9px; flex: none;
+    background: var(--accent); color: #fff; font-weight: 700; font-size: 17px;
+    display: grid; place-items: center;
+  }
+  h1 { font-size: 18px; margin: 0; letter-spacing: .2px; }
+  .sub { color: var(--muted); font-size: 12.5px; }
+  .path {
+    margin-left: auto; color: var(--muted); font-size: 12px; max-width: 46%;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap; direction: rtl; text-align: left;
+  }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; box-shadow: var(--shadow); }
+
+  .status { display: flex; align-items: center; gap: 16px; padding: 16px 18px; }
+  .dot { width: 14px; height: 14px; border-radius: 50%; background: var(--idle); flex: none; }
+  .dot.ok { background: var(--ok); box-shadow: 0 0 0 0 rgba(22, 163, 74, .5); animation: pulse 2s infinite; }
+  .dot.warn { background: var(--warn); }
+  @keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(22, 163, 74, .45); }
+    70% { box-shadow: 0 0 0 9px rgba(22, 163, 74, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(22, 163, 74, 0); }
+  }
+  .state { min-width: 0; flex: 1; }
+  .state b { font-size: 19px; display: block; }
+  .state span { color: var(--muted); font-size: 12.5px; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .controls { display: flex; align-items: center; gap: 10px; flex: none; }
+  label.cfg { color: var(--muted); font-size: 12.5px; display: flex; align-items: center; gap: 6px; }
+  select {
+    font: inherit; color: var(--text); background: var(--card);
+    border: 1px solid var(--line); border-radius: 8px; padding: 6px 8px; min-width: 96px;
+  }
+  button {
+    font: inherit; font-weight: 600; border: 0; border-radius: 8px; padding: 8px 20px; cursor: pointer;
+    color: #fff; transition: background .15s, opacity .15s;
+  }
+  button:disabled { opacity: .38; cursor: default; }
+  .start { background: var(--accent); }
+  .start:not(:disabled):hover { background: var(--accent-hover); }
+  .stop { background: var(--danger); }
+  .stop:not(:disabled):hover { background: var(--danger-hover); }
+  .ghost {
+    background: transparent; color: var(--muted); font-weight: 500; padding: 4px 10px;
+    border: 1px solid var(--line); font-size: 12.5px;
+  }
+  .ghost:hover { color: var(--text); border-color: var(--muted); }
+
+  .banner {
+    display: none; padding: 10px 16px; border-radius: 10px; font-weight: 600;
+    background: rgba(217, 119, 6, .12); color: var(--warn); border: 1px solid rgba(217, 119, 6, .35);
+  }
+  .banner.show { display: block; }
+
+  .tiles { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 10px; }
+  .tile { padding: 10px 14px; min-width: 0; }
+  .tile .k { color: var(--muted); font-size: 12px; }
+  .tile .v { font-weight: 600; margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .tile.wide { grid-column: span 2; }
+  .tile .v.bad { color: var(--danger); }
+
+  .main { flex: 1; min-height: 0; display: flex; gap: 12px; }
+  .queue { width: 268px; flex: none; display: flex; flex-direction: column; overflow: hidden; }
+  .queue h2 { font-size: 13.5px; margin: 0; padding: 9px 14px; border-bottom: 1px solid var(--line); display: flex; align-items: center; gap: 8px; }
+  .queue h2 .name { color: var(--muted); font-size: 12px; font-weight: 400; margin-left: auto; }
+  .qlist { flex: 1; min-height: 0; overflow: auto; padding: 6px 0; }
+  .qsec { padding: 6px 14px 4px; color: var(--muted); font-size: 12px; display: flex; align-items: center; gap: 6px; }
+  .qsec b { color: var(--text); font-size: 12.5px; }
+  .qsec .n { margin-left: auto; }
+  .qitem { padding: 5px 14px; border-left: 3px solid transparent; }
+  .qitem .t { font-weight: 600; font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .qitem .w { color: var(--muted); font-size: 12px; font-variant-numeric: tabular-nums; }
+  .qitem.run { border-left-color: var(--ok); background: rgba(22, 163, 74, .08); }
+  .qitem.due .w { color: var(--warn); }
+  .qnone { padding: 4px 14px 8px; color: var(--muted); font-size: 12.5px; }
+  .logcard { flex: 1; min-width: 0; min-height: 0; display: flex; flex-direction: column; overflow: hidden; }
+  .loghead { display: flex; align-items: center; gap: 8px; padding: 9px 14px; border-bottom: 1px solid var(--line); }
+  .loghead b { font-size: 13.5px; }
+  .loghead .name { color: var(--muted); font-size: 12px; margin-right: auto; }
+  .chk { color: var(--muted); font-size: 12.5px; display: flex; align-items: center; gap: 4px; user-select: none; }
+  #log {
+    flex: 1; overflow: auto; margin: 0; padding: 10px 14px; background: var(--log-bg); color: var(--log-text);
+    font: 12.5px/1.6 "Cascadia Mono", Consolas, "Microsoft YaHei UI", monospace;
+    border-radius: 0 0 12px 12px; white-space: pre-wrap; word-break: break-all; color-scheme: dark;
+  }
+  #log .r { display: flex; gap: 10px; }
+  #log .t { color: var(--log-muted); flex: none; width: 64px; }
+  #log .x { min-width: 0; }
+  #log .cont .x { color: var(--log-muted); }
+  #log .hires .x { color: var(--log-hires); }
+  #log .task .x { color: var(--log-task); font-weight: 600; }
+  #log .warn .x { color: var(--log-warn); }
+  #log .error .x { color: var(--log-error); font-weight: 600; }
+  #log .hr { color: var(--log-hr); font-weight: 600; margin: 6px 0 2px; }
+  #log .hr .x::before { content: "── "; }
+  #log .empty { color: var(--log-muted); }
+  body.focus #log .info, body.focus #log .cont, body.focus #log .hr { display: none; }
+
+  .modal { position: fixed; inset: 0; background: rgba(0, 0, 0, .35); display: none; place-items: center; }
+  .modal.show { display: grid; }
+  .dialog { width: min(440px, 90vw); padding: 20px 22px; }
+  .dialog p { margin: 0 0 18px; white-space: pre-line; }
+  .dialog .row { display: flex; justify-content: flex-end; gap: 10px; }
+  .dialog .ghost { padding: 8px 18px; font-size: 14px; }
+  .toast {
+    position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%); background: #1f2937; color: #fff;
+    padding: 9px 16px; border-radius: 8px; font-size: 13px; opacity: 0; pointer-events: none; transition: opacity .2s;
+  }
+  .toast.show { opacity: 1; }
+
+  @media (max-width: 860px) {
+    .main { flex-direction: column; }
+    .queue { width: auto; max-height: 40%; }
+    .tiles { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .tile.wide { grid-column: span 3; }
+    .status { flex-wrap: wrap; }
+    .path { display: none; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">A</div>
+  <div>
+    <h1>AlasHires</h1>
+    <div class="sub" id="sub">Alas 高分辨率补丁</div>
+  </div>
+  <div class="path" id="path" title=""></div>
+</header>
+
+<section class="card status">
+  <div class="dot" id="dot"></div>
+  <div class="state">
+    <b id="status">连接中…</b>
+    <span id="detail"></span>
+  </div>
+  <div class="controls">
+    <label class="cfg">配置 <select id="config"></select></label>
+    <button class="start" id="start" disabled>启动</button>
+    <button class="stop" id="stop" disabled>停止</button>
+  </div>
+</section>
+
+<div class="banner" id="banner">Alas 请求人工接管：请到模拟器里处理当前画面，然后停止并重新启动。</div>
+
+<section class="tiles">
+  <div class="card tile wide"><div class="k">当前任务</div><div class="v" id="t-task">—</div></div>
+  <div class="card tile"><div class="k">模拟器画面</div><div class="v" id="t-screen">—</div></div>
+  <div class="card tile"><div class="k">截图方式</div><div class="v" id="t-method">—</div></div>
+  <div class="card tile"><div class="k">4K 版模板</div><div class="v" id="t-templates">—</div></div>
+  <div class="card tile"><div class="k">近似匹配 · 警告 / 错误</div><div class="v" id="t-problems">—</div></div>
+</section>
+
+<div class="main">
+<section class="card queue">
+  <h2>调度<span class="name" id="qname"></span></h2>
+  <div class="qlist" id="queue"><div class="qnone">等待…</div></div>
+</section>
+<section class="card logcard">
+  <div class="loghead">
+    <b>日志</b><span class="name" id="logname"></span>
+    <label class="chk"><input type="checkbox" id="focus">只看重点</label>
+    <label class="chk"><input type="checkbox" id="follow" checked>自动滚动</label>
+    <button class="ghost" data-open="log">日志文件夹</button>
+    <button class="ghost" data-open="runs">近似匹配记录</button>
+  </div>
+  <div id="log"><div class="empty">等待日志…</div></div>
+</section>
+</div>
+
+<div class="modal" id="modal">
+  <div class="card dialog">
+    <p id="ask"></p>
+    <div class="row">
+      <button class="ghost" id="no">取消</button>
+      <button class="stop" id="yes">停止</button>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const $ = id => document.getElementById(id);
+const base = location.pathname.replace(/\/?$/, '/');
+const MAX_ROWS = 3000;
+let busy = false;
+let lastConfigs = '';
+
+function toast(text) {
+  const el = $('toast');
+  el.textContent = text;
+  el.classList.add('show');
+  clearTimeout(toast.timer);
+  toast.timer = setTimeout(() => el.classList.remove('show'), 3500);
+}
+
+async function post(path, body) {
+  const r = await fetch(base + 'api/' + path, {
+    method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(body || {}),
+  });
+  if (!r.ok) throw new Error('HTTP ' + r.status);
+  return r.json();
+}
+
+function ask(text) {
+  return new Promise(resolve => {
+    $('ask').textContent = text;
+    $('modal').classList.add('show');
+    const done = v => { $('modal').classList.remove('show'); $('yes').onclick = $('no').onclick = null; resolve(v); };
+    $('yes').onclick = () => done(true);
+    $('no').onclick = () => done(false);
+  });
+}
+
+function addRows(lines, reset) {
+  const log = $('log');
+  const atBottom = log.scrollHeight - log.scrollTop - log.clientHeight < 40;
+  if (reset) log.textContent = '';
+  if (!lines.length && !log.childElementCount) {
+    log.innerHTML = '<div class="empty">这个配置今天还没有日志</div>';
+    return;
+  }
+  const empty = log.querySelector('.empty');
+  if (empty && lines.length) empty.remove();
+  const frag = document.createDocumentFragment();
+  for (const ln of lines) {
+    const row = document.createElement('div');
+    row.className = 'r ' + ln.g;
+    const t = document.createElement('span');
+    t.className = 't';
+    t.textContent = ln.t;
+    const x = document.createElement('span');
+    x.className = 'x';
+    x.textContent = ln.x;
+    row.append(t, x);
+    frag.append(row);
+  }
+  log.append(frag);
+  while (log.childElementCount > MAX_ROWS) log.firstElementChild.remove();
+  if ($('follow').checked && (atBottom || reset)) log.scrollTop = log.scrollHeight;
+}
+
+let lastQueue = '';
+function renderQueue(q, config) {
+  const key = JSON.stringify(q);
+  if (key === lastQueue) return;
+  lastQueue = key;
+  $('qname').textContent = config + '.json';
+  const box = $('queue');
+  box.textContent = '';
+  const secs = [['running', '运行中', 'run'], ['pending', '队列中', 'due'], ['waiting', '等待中', '']];
+  for (const [k, title, cls] of secs) {
+    const h = document.createElement('div');
+    h.className = 'qsec';
+    h.innerHTML = `<b></b><span class="n"></span>`;
+    h.firstChild.textContent = title;
+    h.lastChild.textContent = q[k].length ? q[k].length + ' 项' : '';
+    box.append(h);
+    if (!q[k].length) {
+      const e = document.createElement('div');
+      e.className = 'qnone';
+      e.textContent = '无任务';
+      box.append(e);
+      continue;
+    }
+    for (const it of q[k]) {
+      const d = document.createElement('div');
+      d.className = 'qitem ' + cls;
+      d.title = it.command;
+      const t = document.createElement('div'); t.className = 't'; t.textContent = it.name;
+      const w = document.createElement('div'); w.className = 'w'; w.textContent = it.next_run;
+      d.append(t, w);
+      box.append(d);
+    }
+  }
+}
+
+function render(s) {
+  $('sub').textContent = `Alas 高分辨率补丁 ${s.version} · ${s.copy}`;
+  $('path').textContent = s.alas;
+  $('path').title = s.alas;
+  $('status').textContent = s.status;
+  $('detail').textContent = s.detail;
+  $('dot').className = 'dot ' + s.color;
+  if (!busy) {
+    $('start').disabled = !s.can_start;
+    $('stop').disabled = !s.can_stop;
+  }
+  const configs = s.configs.join('\n');
+  if (configs !== lastConfigs) {
+    lastConfigs = configs;
+    $('config').innerHTML = '';
+    for (const c of s.configs) $('config').add(new Option(c, c));
+  }
+  if (document.activeElement !== $('config')) $('config').value = s.config;
+  $('config').disabled = !s.can_start;
+  $('t-task').textContent = s.tiles.task;
+  $('t-task').title = s.tiles.task;
+  $('t-screen').textContent = s.tiles.screen;
+  $('t-method').textContent = s.tiles.method;
+  $('t-method').title = s.tiles.method;
+  $('t-templates').textContent = s.tiles.templates;
+  $('t-problems').textContent = `${s.tiles.near} · ${s.tiles.problems}`;
+  $('t-problems').classList.toggle('bad', !s.tiles.problems.endsWith('/ 0'));
+  $('banner').classList.toggle('show', s.status === '需要人工处理');
+  $('logname').textContent = s.log_name;
+  if (s.queue) renderQueue(s.queue, s.config);
+  addRows(s.lines, s.reset);
+}
+
+function connect() {
+  if (new URLSearchParams(location.search).has('once')) {   // headless screenshots: no open stream
+    fetch(base + 'api/state').then(r => r.json()).then(render);
+    return;
+  }
+  const es = new EventSource(base + 'api/stream');
+  es.onmessage = e => render(JSON.parse(e.data));
+  es.onerror = () => {
+    $('status').textContent = '和 AlasHires 的连接断开';
+    $('detail').textContent = '正在重连；如果一直断开，请关掉这个窗口，重新打开 AlasHires';
+    $('dot').className = 'dot warn';
+    $('start').disabled = $('stop').disabled = true;
+  };
+}
+
+async function act(fn) {
+  if (busy) return;
+  busy = true;
+  $('start').disabled = $('stop').disabled = true;
+  try { await fn(); } catch (e) { toast('操作失败：' + e.message); } finally { busy = false; }
+}
+
+$('start').onclick = () => act(async () => {
+  const r = await post('start', {config: $('config').value});
+  if (r.error) toast(r.error);
+});
+$('stop').onclick = () => act(async () => {
+  let r = await post('stop', {});
+  if (r.confirm) {
+    if (!await ask(r.confirm)) return;
+    r = await post('stop', {confirmed: true});
+  }
+  if (r.error) toast(r.error);
+});
+$('config').onchange = () => post('config', {config: $('config').value}).catch(e => toast(e.message));
+$('focus').onchange = () => document.body.classList.toggle('focus', $('focus').checked);
+$('follow').onchange = () => { if ($('follow').checked) $('log').scrollTop = $('log').scrollHeight; };
+for (const b of document.querySelectorAll('[data-open]')) b.onclick = () => post('open', {what: b.dataset.open});
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && $('modal').classList.contains('show')) $('no').click(); });
+connect();
+</script>
+</body>
+</html>

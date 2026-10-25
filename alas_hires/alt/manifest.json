@@ -3,15 +3,22 @@
     "button": "handler.CLEAR_MODE_TITLE",
     "md5": "104d65ea62ae9ebabfadf547af7a218f",
     "files": [
-      "assets/cn/handler/CLEAR_MODE_TITLE.0.png"
+      "assets/cn/handler/CLEAR_MODE_TITLE.0.png",
+      "assets/cn/handler/CLEAR_MODE_TITLE.1.png"
     ],
     "sources": [
       {
         "from": "4K screenshot 031_120556.png",
         "note": "original 0.692 at (959, 586), area (960, 586, 1036, 606)",
         "date": "2026-10-20"
+      },
+      {
+        "from": "near-miss crop CLEAR_MODE_TITLE__0.718__104349.png",
+        "note": "near-miss crop",
+        "date": "2026-10-24"
       }
-    ]
+    ],
+    "similarity": 0.8
   },
   "assets/cn/handler/AUTO_SEARCH_TITLE.png": {
     "button": "handler.AUTO_SEARCH_TITLE",
@@ -25,7 +32,8 @@
         "note": "original 0.883 at (846, 586), area (848, 586, 917, 606)",
         "date": "2026-10-20"
       }
-    ]
+    ],
+    "similarity": 0.8
   },
   "assets/cn/os/ZONE_DANGEROUS.png": {
     "button": "os.ZONE_DANGEROUS",
@@ -80,6 +88,76 @@
         "from": "4K screenshot 131_130737.png",
         "note": "original 0.790 at (85, 301), area (85, 301, 172, 322)",
         "date": "2026-10-20"
+      }
+    ]
+  },
+  "assets/cn/shop/NAV_GENERAL.png": {
+    "button": "shop.NAV_GENERAL",
+    "md5": "517d9ee6a02fbdf321e0c687d86ba7ff",
+    "files": [
+      "assets/cn/shop/NAV_GENERAL.0.png"
+    ],
+    "sources": [
+      {
+        "from": "near-miss crop NAV_GENERAL__0.801__162049.png",
+        "note": "near-miss crop",
+        "date": "2026-10-21"
+      }
+    ]
+  },
+  "assets/cn/ui/PRIVATE_QUARTERS_CHECK.png": {
+    "button": "ui.PRIVATE_QUARTERS_CHECK",
+    "md5": "b1f8a42a460a50589ed75e38b8512b42",
+    "files": [
+      "assets/cn/ui/PRIVATE_QUARTERS_CHECK.0.png"
+    ],
+    "sources": [
+      {
+        "from": "near-miss crop PRIVATE_QUARTERS_CHECK__0.818__212824.png",
+        "note": "near-miss crop",
+        "date": "2026-10-22"
+      }
+    ]
+  },
+  "assets/cn/os/ZONE_ABYSSAL.png": {
+    "button": "os.ZONE_ABYSSAL",
+    "md5": "f5a0854effec483ca77b1b024d539ddc",
+    "files": [
+      "assets/cn/os/ZONE_ABYSSAL.0.png"
+    ],
+    "sources": [
+      {
+        "from": "near-miss crop ZONE_ABYSSAL__0.726__233322.png",
+        "note": "near-miss crop",
+        "date": "2026-10-22"
+      }
+    ]
+  },
+  "assets/cn/retire/DOCK_EMPTY.png": {
+    "button": "retire.DOCK_EMPTY",
+    "md5": "083d1d3364986e5e35275a4ee831ad20",
+    "files": [
+      "assets/cn/retire/DOCK_EMPTY.0.png"
+    ],
+    "sources": [
+      {
+        "from": "near-miss crop DOCK_EMPTY__0.827__110806.png",
+        "note": "near-miss crop",
+        "date": "2026-10-24"
+      }
+    ]
+  },
+  "assets/cn/daily/DAILY_SKIP.png": {
+    "button": "daily.DAILY_SKIP",
+    "md5": "f4dae70b4aa7970d9f01911c81a5a82e",
+    "files": [
+      "assets/cn/daily/DAILY_SKIP.0.png"
+    ],
+    "sources": [
+      {
+        "from": "near-miss crop DAILY_SKIP__0.842__000257.png",
+        "note": "near-miss crop",
+        "date": "2026-10-25"
       }
     ]
   }

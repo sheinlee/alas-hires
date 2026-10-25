@@ -5,6 +5,8 @@ Run inside the AzurLaneAutoScript folder with Alas's own python:
     toolkit\\python.exe make_alt.py add --button handler.CLEAR_MODE_TITLE --shot <4K png> [--search 8]
   Add a near-miss crop saved by alas_hires (runs/<time>/near/*.png, already template-sized):
     toolkit\\python.exe make_alt.py add --button os.ZONE_SAFE --crop <png>
+  Lower one button's alternative threshold (text titles on varying backgrounds; 0 restores Alas's):
+    toolkit\\python.exe make_alt.py similarity --button handler.AUTO_SEARCH_TITLE 0.8
   Check every alternative against a folder of hi-res screenshots (false positives):
     toolkit\\python.exe make_alt.py check --shots <4K dir> [--native <720p dir>]
   Servers other than CN: put --server en|jp|tw before the command (alternatives are kept per server).
@@ -93,6 +95,21 @@ def add(a):
     print(f'saved {out}')
 
 
+def set_similarity(a):
+    """Lower the match threshold of one button's alternatives. Only for text titles whose 4K rendering
+    changes with the background (e.g. CLEAR_MODE_TITLE on event maps); run `check` afterwards."""
+    key = alas_hires.asset_key(get_button(a.button).file)
+    manifest = load_manifest()
+    if key not in manifest:
+        sys.exit(f'{a.button} has no alternatives yet')
+    if a.value:
+        manifest[key]['similarity'] = a.value
+    else:
+        manifest[key].pop('similarity', None)
+    save_manifest(manifest)
+    print(f'{a.button}: alternatives match at {a.value or "Alas default"}')
+
+
 def check(a):
     manifest = load_manifest()
     shots = sorted(glob.glob(os.path.join(a.shots, '*.png')))
@@ -104,15 +121,16 @@ def check(a):
         template = button.image[0] if button.is_gif else button.image
         alts = [load_image(os.path.join(alas_hires.ALT_DIR, rel)) for rel in entry['files']]
         stale = alas_hires.file_md5(key) != entry['md5']
-        print(f'\n{entry["button"]} ({len(alts)} alternatives){"  ** asset changed upstream **" if stale else ""}')
+        need = min(0.85, entry.get('similarity') or 0.85)
+        print(f'\n{entry["button"]} ({len(alts)} alternatives, match at {need}){"  ** asset changed upstream **" if stale else ""}')
         for label, items in (('hi-res', frames), ('720p', native_frames)):
             hits = []
             for name, image in items:
                 orig, _ = score_at(template, image, button.area, 20)
                 alt = max(score_at(t, image, button.area, 20)[0] for t in alts)
-                if alt >= 0.85 or orig >= 0.85:
+                if alt >= need or orig >= 0.85:
                     hits.append(f'{name} alt={alt:.3f} orig={orig:.3f}')
-            print(f'  {label}: {len(hits)} frames with a score >= 0.85')
+            print(f'  {label}: {len(hits)} frames with alt >= {need} or orig >= 0.85')
             for line in hits:
                 print('    ' + line)
 
@@ -130,10 +148,13 @@ def main():
     p = sub.add_parser('check')
     p.add_argument('--shots', required=True)
     p.add_argument('--native')
+    p = sub.add_parser('similarity')
+    p.add_argument('--button', required=True)
+    p.add_argument('value', type=float, help="threshold for this button's alternatives; 0 = Alas's own")
     a = ap.parse_args()
     sys.stdout.reconfigure(encoding='utf-8')
     server.server = a.server   # Button areas and asset files are resolved per server on first access
-    {'add': add, 'check': check}[a.cmd](a)
+    {'add': add, 'check': check, 'similarity': set_similarity}[a.cmd](a)
 
 
 if __name__ == '__main__':
